@@ -57,7 +57,7 @@ gta_hs_vintage_converter <- function(codes, years = c(1992, 1996, 2002, 2007, 20
     # store codes that were truncated to return in warning and truncate codes to max 6 characters length
     truncated_codes <- codes[nchar(codes) > 6 & !is.na(codes)]
     codes[nchar(codes) > 6 & !is.na(codes)] <- substr(codes[nchar(codes) > 6 & !is.na(codes)], 1, 6)
-    hs_vintages <- gtalibrary::hs_vintages
+    hs_vintages <- gtalibrarybeta::hs_vintages
 
     # calculate the number of maches of the codes in each HS year that is to be tested
     matches <- vector()
