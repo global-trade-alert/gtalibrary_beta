@@ -2,14 +2,14 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 datefunction <- function(start, end, current_date, current_year_todate = TRUE) {
-    .Call(`_gtalibrary_datefunction`, start, end, current_date, current_year_todate)
+    .Call(`_gtalibrarybeta_datefunction`, start, end, current_date, current_year_todate)
 }
 
 gta_code_converter_cpp <- function(codes_2012, codes_vintage, codes) {
-    .Call(`_gtalibrary_gta_code_converter_cpp`, codes_2012, codes_vintage, codes)
+    .Call(`_gtalibrarybeta_gta_code_converter_cpp`, codes_2012, codes_vintage, codes)
 }
 
 count_interventions_cpp <- function(start, end, count_by) {
-    .Call(`_gtalibrary_count_interventions_cpp`, start, end, count_by)
+    .Call(`_gtalibrarybeta_count_interventions_cpp`, start, end, count_by)
 }
 
