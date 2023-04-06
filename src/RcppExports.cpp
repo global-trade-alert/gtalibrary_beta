@@ -10,6 +10,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// cpc_code_expand_cpp
+List cpc_code_expand_cpp(const std::vector<std::string>& cpc_3_digit, const std::vector<std::string>& cpc_2_digit);
+RcppExport SEXP _gtalibrarybeta_cpc_code_expand_cpp(SEXP cpc_3_digitSEXP, SEXP cpc_2_digitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type cpc_3_digit(cpc_3_digitSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type cpc_2_digit(cpc_2_digitSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpc_code_expand_cpp(cpc_3_digit, cpc_2_digit));
+    return rcpp_result_gen;
+END_RCPP
+}
 // datefunction
 List datefunction(const DateVector& start, const DateVector& end, const Date& current_date, const bool current_year_todate);
 RcppExport SEXP _gtalibrarybeta_datefunction(SEXP startSEXP, SEXP endSEXP, SEXP current_dateSEXP, SEXP current_year_todateSEXP) {
@@ -52,6 +64,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_gtalibrarybeta_cpc_code_expand_cpp", (DL_FUNC) &_gtalibrarybeta_cpc_code_expand_cpp, 2},
     {"_gtalibrarybeta_datefunction", (DL_FUNC) &_gtalibrarybeta_datefunction, 4},
     {"_gtalibrarybeta_gta_code_converter_cpp", (DL_FUNC) &_gtalibrarybeta_gta_code_converter_cpp, 3},
     {"_gtalibrarybeta_count_interventions_cpp", (DL_FUNC) &_gtalibrarybeta_count_interventions_cpp, 3},
