@@ -35,10 +35,12 @@ gta_cumulative_counts <- function(data, count_by = "quarter") {
     # modify result output (easier to write in R than in c++)
     if (count_by %in% c("month", "quarter")) {
         results <- results |>
-            tidyr::separate(2, into = c("year", count_by), sep = "-", convert = TRUE)
+            tidyr::separate(2, into = c("year", count_by), sep = "-", convert = TRUE) |>
+            dplyr::arrange(dplyr::desc(year), dplyr::desc(quarter))
     } else {
         results <- results |>
-            mutate(across(everything(), as.numeric))
+            dplyr::mutate(year = as.numeric(year)) |>
+            dplyr::arrange(dplyr::desc(year))
     }
 
     # should be by intervention id, no ? --> Possible error in this code!
