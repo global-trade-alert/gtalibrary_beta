@@ -36,7 +36,7 @@ gta_cumulative_counts <- function(data, count_by = "quarter") {
     if (count_by %in% c("month", "quarter")) {
         results <- results |>
             tidyr::separate(2, into = c("year", count_by), sep = "-", convert = TRUE) |>
-            dplyr::arrange(dplyr::desc(year), dplyr::desc(quarter))
+            dplyr::arrange(dplyr::desc(year), dplyr::desc(count_by))
     } else {
         results <- results |>
             dplyr::mutate(year = as.numeric(year)) |>
