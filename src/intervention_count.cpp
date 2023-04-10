@@ -83,12 +83,12 @@ std::vector<std::string> seq_quarters(const Date &start_date, const Date &end_da
             // Check if this quarter falls within the date range
             if (start_year < end_year)
             {
-                quarter_str = std::to_string(year) + "-Q" + std::to_string(quarter);
+                quarter_str = std::to_string(year) + "-" + std::to_string(quarter);
                 quarters.push_back(quarter_str);
             }
             else if (quarter <= end_quarter)
             {
-                quarter_str = std::to_string(year) + "-Q" + std::to_string(quarter);
+                quarter_str = std::to_string(year) + "-" + std::to_string(quarter);
                 quarters.push_back(quarter_str);
             }
             else
