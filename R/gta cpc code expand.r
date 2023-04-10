@@ -3,6 +3,7 @@
 #' Expands 2-digit level CPC codes into 3-digit level CPC codes.
 #'
 #' This function takes in 2-digit level CPC codes and returns all corresponding 3-digit level CPC codes.
+#' Input can be either numeric or character. Results are returned as characters
 #' @usage gta_cpc_code_expand(
 #'      codes,
 #'      as_list = FALSE,
@@ -16,9 +17,9 @@
 gta_cpc_code_expand <- function(codes, as_list = FALSE, message = TRUE) {
     # prepare 3 digit codes
     cpc_names <- gtalibrary::cpc.names |>
-        filter(cpc.digit.level == 3) |>
-        select(cpc) |>
-        mutate(cpc = stringr::str_pad(cpc, width = 3, pad = "0", side = "left"))
+        dplyr::filter(cpc.digit.level == 3) |>
+        dplyr::select(cpc) |>
+        dplyr::mutate(cpc = stringr::str_pad(cpc, width = 3, pad = "0", side = "left"))
 
     # pass data frame to c++ function for vectorization
     codes_converted <- cpc_code_expand_cpp(cpc_2_digit = codes, cpc_3_digit = cpc_names$cpc)
@@ -39,19 +40,9 @@ gta_cpc_code_expand <- function(codes, as_list = FALSE, message = TRUE) {
     if (as_list) {
         return(codes_converted)
     } else {
-        codes_converted <- unlist(codes_converted) |>
+        codes_converted <- codes_converted |>
+            unlist() |>
             unique()
         return(codes_converted)
     }
 }
-
-## test code
-# Rcpp::sourceCpp("c:\\Users\\sveng\\OneDrive\\Dokumente\\GitHub\\GTA\\gtalibrary_beta\\src\\cpc_code_expand_cpp.cpp")
-#
-# gta_cpc_code_expand(c("16", "14"), as_list = TRUE)
-#
-
-microbenchmark::microbenchmark(
-    times = 1,
-    gta_cpc_code_expand(rep(c("16", "14"), 10000), as_list = TRUE, message = FALSE)
-)
