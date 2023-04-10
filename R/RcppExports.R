@@ -5,6 +5,10 @@ cpc_code_expand_cpp <- function(cpc_3_digit, cpc_2_digit) {
     .Call(`_gtalibrarybeta_cpc_code_expand_cpp`, cpc_3_digit, cpc_2_digit)
 }
 
+cpc_to_hs_cpp <- function(hs_codes, cpc_codes, codes) {
+    .Call(`_gtalibrarybeta_cpc_to_hs_cpp`, hs_codes, cpc_codes, codes)
+}
+
 datefunction <- function(start, end, current_date, current_year_todate = TRUE) {
     .Call(`_gtalibrarybeta_datefunction`, start, end, current_date, current_year_todate)
 }
