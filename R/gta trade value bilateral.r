@@ -78,7 +78,7 @@ gta_trade_value_bilateral <- function(data = NULL,
     # cpc codes
     if (!is.null(cpc.sectors)) {
         # if cpc.sectors is specified, user must select if cpc codes are kept or deleted in parameter keep.cpc
-        gta_logical_check(keep.cpc, is.loical)
+        gta_logical_check(keep.cpc, is.logical)
         cpc_codes_filter <- gta_cpc_to_hs(cpc.sectors) ## check function!!! 
 
         # append filter statement
