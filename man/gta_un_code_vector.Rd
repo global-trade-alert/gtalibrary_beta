@@ -3,7 +3,8 @@
 \name{gta_un_code_vector}
 \alias{gta_un_code_vector}
 \title{Create a vector of UN country codes
-Returns a vector of codes based on country or group names.}
+Use this function to get the UN codes of countries or to check whether UN codes are consistent with the UN codes
+used by the GTA. The funciton returns a vector of codes based on country or group names. Per default, a vector of all UN codes is returned}
 \usage{
 gta_un_code_vector(countries = "all")
 }
@@ -15,5 +16,6 @@ A vector of UN country codes that is consistent with those used by the GTA.
 }
 \description{
 Create a vector of UN country codes
-Returns a vector of codes based on country or group names.
+Use this function to get the UN codes of countries or to check whether UN codes are consistent with the UN codes
+used by the GTA. The funciton returns a vector of codes based on country or group names. Per default, a vector of all UN codes is returned
 }
