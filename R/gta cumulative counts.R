@@ -5,12 +5,19 @@
 #' Computes number of interventions in force.
 #'
 #' @param data requires a data frame obtained by running the \code{gta_data_slicer()}
-#' @param count_by Specify whether to count by month, quarter or year.'.
-#' @details all gta_data_slicer parameters are permissible.'.
+#' @param count_by Specify whether to count by month, quarter or year.
+#' @usage gta_cumulative_count(
+#'      data,
+#'      count_by = c("quarter", "year", "month")
+#' )
+#' @examples
+#' # first, obtain a master dataset (eg. by running the data slicer)
+#' master <- gta_data_slicer(affected.jurisdiction = "Switzerland", keep.affected = TRUE, keep.others = FALSE)
+#' master |>
+#'     gta_cumulative_count(count_by = "year")
 #' @return Outputs in force interventions by different given periods.
-
 #' @export
-gta_cumulative_counts <- function(data, count_by = "quarter") {
+gta_cumulative_count <- function(data, count_by = "quarter") {
     # check parameters
     gta_parameter_check(tolower(count_by), c("quarter", "month", "year"), arg_name = "count_by")
 
@@ -42,11 +49,6 @@ gta_cumulative_counts <- function(data, count_by = "quarter") {
             dplyr::mutate(year = as.numeric(year)) |>
             dplyr::arrange(dplyr::desc(year))
     }
-
-    # should be by intervention id, no ? --> Possible error in this code!
-    # this only gives the unique implemented removed combos, but if two interventions
-    # have the same combo, the result will be incorrect...
-    # base <- unique(subset(master.sliced, select = c("date.implemented", "date.removed")))
 
     return(results)
 }
