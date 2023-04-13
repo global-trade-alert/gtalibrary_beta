@@ -370,10 +370,3 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
 
     return(tibble::as_tibble(data))
 }
-
-# microbenchmark::microbenchmark(
-#     times = 5L,
-#     data |> gta_data_slicer(gta.evaluation = "red", affected.country = "Switzerland", keep.affected = TRUE, keep.others = FALSE, keep.revocation.na = FALSE)
-# )
-#
-# data |> gtalibrarybeta::gta_data_slicer(gta.evaluation = "Green")
