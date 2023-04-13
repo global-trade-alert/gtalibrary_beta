@@ -82,7 +82,7 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
     # gta.evaluation
     if (!is.null(gta.evaluation)) {
         gta_parameter_check(tolower(gta.evaluation), c("red", "amber", "green"), arg_name = "gta.evaluation")
-        gta_evaluation_filter <- stringr::str_to_title(gta.evaluation)
+        gta_evaluation_filter <- stringr::str_to_title(gta.evaluation) # convert gta.evaluation to format used in dataset
         filter_statement <- append(filter_statement, "gta.evaluation %in% gta_evaluation_filter")
     }
 
@@ -370,3 +370,10 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
 
     return(tibble::as_tibble(data))
 }
+
+# microbenchmark::microbenchmark(
+#     times = 5L,
+#     data |> gta_data_slicer(gta.evaluation = "red", affected.country = "Switzerland", keep.affected = TRUE, keep.others = FALSE, keep.revocation.na = FALSE)
+# )
+#
+# data |> gtalibrarybeta::gta_data_slicer(gta.evaluation = "Green")
