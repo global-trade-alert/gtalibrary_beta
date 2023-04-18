@@ -71,7 +71,7 @@ gta_data_slicer_test <- function(data = NULL, data.path = "data/master.Rds",
     if (!length(filter_statement) == 0) {
         filter_statement <- paste(filter_statement, collapse = " & ")
         data <- dtplyr::lazy_dt(data) |>
-            dplyr::filter(rlang::eval_tidy(rlang::parse_expr(filter_statement)))
+            dplyr::filter(!!rlang::parse_expr(filter_statement))
     }
     print(filter_statement)
     return(tibble::as_tibble(data))
