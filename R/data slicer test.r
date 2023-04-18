@@ -40,7 +40,7 @@
 #' @param lag.adjustment Create a snapshot of the GTA data at the same point in each calendar year since 2009. Specify a cut-off date ('MM-DD').
 #' @export
 gta_data_slicer_test <- function(data = NULL, data.path = "data/master.Rds",
-                                 gta.evaluation = NULL) {
+                                 gta_evaluation = NULL) {
     # if master dataset is not provided, load it as data table
     # if it is already provided, ensure that it is formatted as a data.table
     if (is.null(data)) {
@@ -62,8 +62,8 @@ gta_data_slicer_test <- function(data = NULL, data.path = "data/master.Rds",
     ##################################################################
 
     # gta.evaluation
-    if (!is.null(gta.evaluation)) {
-        gta_evaluation_filter <- stringr::str_to_title(gta.evaluation) # convert gta.evaluation to format used in dataset
+    if (!is.null(gta_evaluation)) {
+        gta_evaluation_filter <- stringr::str_to_title(gta_evaluation) # convert gta.evaluation to format used in dataset
         filter_statement <- append(filter_statement, "gta.evaluation %in% gta_evaluation_filter")
     }
 
