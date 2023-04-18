@@ -40,16 +40,7 @@
 #' @param lag.adjustment Create a snapshot of the GTA data at the same point in each calendar year since 2009. Specify a cut-off date ('MM-DD').
 #' @export
 gta_data_slicer_test <- function(data = NULL, data.path = "data/master.Rds",
-                                 gta.evaluation = NULL, affected.flows = NULL, implementing.country = NULL,
-                                 keep.implementer = TRUE, affected.country = NULL, keep.affected = NULL,
-                                 incl.affected.strictness = "ONEPLUS", keep.others = TRUE, nr.affected = c(0, 999),
-                                 nr.affected.incl = "ALL", announcement.period = NULL, implementation.period = NULL,
-                                 keep.implementation.na = NULL, revocation.period = NULL, keep.revocation.na = TRUE,
-                                 submission.period = NULL, in.force.on.date = Sys.Date(), keep.in.force.on.date = "any",
-                                 intervention.types = NULL, keep.type = NULL, mast.chapters = NULL, keep.mast = NULL,
-                                 implementation.level = NULL, keep.level = NULL, eligible.firms = NULL, keep.firms = NULL,
-                                 cpc.sectors = NULL, keep.cpc = NULL, hs.codes = NULL, keep.hs = NULL,
-                                 intervention.ids = NULL, keep.interventions = NULL, lag.adjustment = NULL) {
+                                 gta.evaluation = NULL) {
     # if master dataset is not provided, load it as data table
     # if it is already provided, ensure that it is formatted as a data.table
     if (is.null(data)) {
@@ -65,23 +56,13 @@ gta_data_slicer_test <- function(data = NULL, data.path = "data/master.Rds",
 
     filter_statement <- vector("character")
     # Suppress summarize info
-    options(dplyr.summarise.inform = FALSE)
 
     ##################################################################
     # Check argument validity and generate filter statement & further operations where necessary
     ##################################################################
-    gta_logical_check(keep.implementer, is.logical, "Keep.implementer must be TRUE/FALSE")
-    gta_logical_check(keep.revocation.na, is.logical, "Keep.revocation.na must be a TRUE/FALSE")
-    gta_logical_check(keep.others, is.logical, "Keep.others must be a TRUE/FALSE")
-    gta_parameter_check(tolower(nr.affected.incl), c("all", "selected", "unselected"))
-    gta_parameter_check(tolower(incl.affected.strictness), c("all", "one", "oneplus"))
-    gta_logical_check(in.force.on.date, lubridate::is.Date, error_msg = "in.force.on.date must be a date")
-    gta_parameter_check(tolower(keep.in.force.on.date), c("any", "yes", "no"))
-    gta_logical_check(nr.affected, \(x) (length(x) == 2 & x >= 0 & trunc(x) == x), error_msg = "nr.affected must be a vector of two valid integers >= 0")
 
     # gta.evaluation
     if (!is.null(gta.evaluation)) {
-        gta_parameter_check(tolower(gta.evaluation), c("red", "amber", "green"), arg_name = "gta.evaluation")
         gta_evaluation_filter <- stringr::str_to_title(gta.evaluation) # convert gta.evaluation to format used in dataset
         filter_statement <- append(filter_statement, "gta.evaluation %in% gta_evaluation_filter")
     }
