@@ -6,5 +6,3 @@ test_function <- function() {
     out <- tbl |>
         dplyr::filter(eval(parse(text = filter_statement)))
 }
-
-roxygen2::roxygenize()
