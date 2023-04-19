@@ -48,8 +48,8 @@ gta_data_slicer_test <- function(data = NULL,
 
     # filter the data frame for the first time
     filter_statement <- paste(filter_statement, collapse = " & ")
-    data <- data |>
-        dplyr::filter(!!rlang::parse_expr(filter_statement))
-
-    return(tibble::as_tibble(data))
+    data <- dtplyr::lazy_dt(data) |>
+        dplyr::filter(!!rlang::parse_expr(filter_statement)) |>
+        tibble::as_tibble()
+    return(data)
 }
