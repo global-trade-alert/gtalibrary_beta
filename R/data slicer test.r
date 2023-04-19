@@ -39,40 +39,17 @@
 #' @param keep.interventions Specify whether to focus on ('TRUE') or exclude ('FALSE') the stated intervention IDs.
 #' @param lag.adjustment Create a snapshot of the GTA data at the same point in each calendar year since 2009. Specify a cut-off date ('MM-DD').
 #' @export
-gta_data_slicer_test <- function(data = NULL, data.path = "data/master.Rds",
+gta_data_slicer_test <- function(data = NULL,
                                  gta_evaluation = NULL) {
-    # if master dataset is not provided, load it as data table
-    # if it is already provided, ensure that it is formatted as a data.table
-    if (is.null(data)) {
-        # try to load data
-        tryCatch(
-            data <- data.table::as.data.table(readRDS(data.path)),
-            error = \(e) cli::cli_abort("Path to data file is invalid. Did you set your working directory ?")
-        )
-    }
-    if (!data.table::is.data.table(data)) {
-        data <- data.table::as.data.table(data)
-    }
-
     filter_statement <- vector("character")
-    # Suppress summarize info
 
-    ##################################################################
-    # Check argument validity and generate filter statement & further operations where necessary
-    ##################################################################
-
-    # gta.evaluation
-    if (!is.null(gta_evaluation)) {
-        gta_evaluation_filter <- stringr::str_to_title(gta_evaluation) # convert gta.evaluation to format used in dataset
-        filter_statement <- append(filter_statement, "gta.evaluation %in% gta_evaluation_filter")
-    }
+    gta_evaluation_filter <- stringr::str_to_title(gta_evaluation) # convert gta.evaluation to format used in dataset
+    filter_statement <- append(filter_statement, "gta.evaluation %in% gta_evaluation_filter")
 
     # filter the data frame for the first time
-    if (!length(filter_statement) == 0) {
-        filter_statement <- paste(filter_statement, collapse = " & ")
-        data <- dtplyr::lazy_dt(data) |>
-            dplyr::filter(!!rlang::parse_expr(filter_statement))
-    }
-    print(filter_statement)
+    filter_statement <- paste(filter_statement, collapse = " & ")
+    data <- dtplyr::lazy_dt(data) |>
+        dplyr::filter(!!rlang::parse_expr(filter_statement))
+
     return(tibble::as_tibble(data))
 }
