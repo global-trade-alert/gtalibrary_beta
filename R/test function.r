@@ -8,7 +8,7 @@ test_function <- function(tbl) {
     filter_statement <- substitute(filter_statement | b == 15, list(filter_statement = filter_statement))
 
     out <- dtplyr::lazy_dt(tbl) |>
-        dplyr::filter(!!filter_statement)
+        dplyr::filter({{ filter_statement }})
 
     return(out)
 }
