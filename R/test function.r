@@ -6,8 +6,9 @@ test_function <- function(tbl) {
 
     # append to filter_statement (for lack of a better solution with dtplyr...)
     filter_statement <- substitute(filter_statement | b == 15, list(filter_statement = filter_statement))
+    filter_statement <- rlang::enquo(filter_statement)
     out <- dtplyr::lazy_dt(tbl) |>
-        dplyr::filter(!!rlang::enexpr(filter_statement))
+        dplyr::filter(!!filter_statement)
 
     return(out)
 }
