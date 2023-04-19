@@ -55,13 +55,13 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
     if (is.null(data)) {
         # try to load data
         tryCatch(
-            data <- data.table::as.data.table(readRDS(data.path)),
+            data <- readRDS(data.path),
             error = \(e) cli::cli_abort("Path to data file is invalid. Did you set your working directory ?")
         )
     }
-    if (!data.table::is.data.table(data)) {
-        data <- data.table::as.data.table(data)
-    }
+    # if (!data.table::is.data.table(data)) {
+    #     data <- data.table::as.data.table(data)
+    # }
 
     filter_statement <- vector("character")
     # Suppress summarize info
@@ -117,7 +117,7 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
             filter_affected <- "!a.un %in% affected_country_filter"
         }
 
-        affected_interventions <- dtplyr::lazy_dt(data) |>
+        affected_interventions <- data |>
             dplyr::filter(eval(parse(text = filter_affected))) |>
             dplyr::distinct(intervention.id) |>
             dplyr::pull(intervention.id)
@@ -127,7 +127,7 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
             # generates tibble that contains
             # - number of affected countries per intervention.id where at least one member in the argument "affected.country" is included
             # - number of values "affected.country" which are affected per intervention.id
-            affected_countries_info <- dtplyr::lazy_dt(data) |>
+            affected_countries_info <- data |>
                 dplyr::filter(intervention.id %in% affected_interventions) |>
                 dplyr::select(a.un, intervention.id) |>
                 dplyr::distinct() |>
