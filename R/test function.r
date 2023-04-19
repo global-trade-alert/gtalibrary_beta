@@ -6,9 +6,10 @@ test_function <- function(tbl) {
 
     # append to filter_statement (for lack of a better solution with dtplyr...)
     filter_statement <- substitute(filter_statement | b == 15, list(filter_statement = filter_statement))
-
-    out <- dtplyr::lazy_dt(tbl) |>
-        dplyr::filter({{ filter_statement }})
+    out <- with(environment(), {
+        dtplyr::lazy_dt(tbl) |>
+            dplyr::filter({{ filter_statement }})
+    })
 
     return(out)
 }
