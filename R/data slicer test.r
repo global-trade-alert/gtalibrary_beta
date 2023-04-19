@@ -8,7 +8,7 @@ gta_data_slicer_test <- function(data = NULL,
 
     # filter the data frame for the first time
     filter_statement <- paste(filter_statement, collapse = " & ")
-    tibble::as_tibble(data) |>
+    data <- tibble::as_tibble(data) |>
         dplyr::filter(eval(parse(text = filter_statement)))
 
     return(data)
