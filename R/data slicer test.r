@@ -13,17 +13,3 @@ gta_data_slicer_test <- function(data = NULL,
 
     return(data)
 }
-
-test <- data.table::as.data.table(mtcars)
-
-filter_test <- "cyl == 6"
-
-test[eval(parse(text = filter_test))]
-
-
-a <- deparse(10)
-eval(parse(text = a))
-substitute(a)
-data <- as.data.table(master)
-
-master |> gta_data_slicer_test(gta_evaluation = "amber")
