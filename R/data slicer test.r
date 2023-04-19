@@ -8,10 +8,22 @@ gta_data_slicer_test <- function(data = NULL,
 
     # filter the data frame for the first time
     filter_statement <- paste(filter_statement, collapse = " & ")
-    force(
-        data <- dtplyr::lazy_dt(data) |>
-            dplyr::filter(rlang::eval_tidy(rlang::parse_expr(filter_statement))) |>
-            tibble::as_tibble()
-    )
+    tibble::as_tibble(data) |>
+        dplyr::filter(eval(parse(text = filter_statement)))
+
     return(data)
 }
+
+test <- data.table::as.data.table(mtcars)
+
+filter_test <- "cyl == 6"
+
+test[eval(parse(text = filter_test))]
+
+
+a <- deparse(10)
+eval(parse(text = a))
+substitute(a)
+data <- as.data.table(master)
+
+master |> gta_data_slicer_test(gta_evaluation = "amber")
