@@ -46,10 +46,13 @@ gta_data_slicer_test <- function(data = NULL,
     gta_evaluation_filter <- stringr::str_to_title(gta_evaluation) # convert gta.evaluation to format used in dataset
     filter_statement <- append(filter_statement, "gta.evaluation %in% gta_evaluation_filter")
 
+    data_evaluated <- eval(substitute(data), envir = parent.frame())
+
     # filter the data frame for the first time
     filter_statement <- paste(filter_statement, collapse = " & ")
-    data <- dtplyr::lazy_dt(data) |>
+    data <- dtplyr::lazy_dt(data_evaluated) |>
         dplyr::filter(!!rlang::parse_expr(filter_statement)) |>
         tibble::as_tibble()
+
     return(data)
 }
