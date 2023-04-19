@@ -48,7 +48,7 @@ gta_data_slicer_test <- function(data = NULL,
 
     # filter the data frame for the first time
     filter_statement <- paste(filter_statement, collapse = " & ")
-    data <- dtplyr::lazy_dt(data) |>
+    data <- data |>
         dplyr::filter(!!rlang::parse_expr(filter_statement))
 
     return(tibble::as_tibble(data))
