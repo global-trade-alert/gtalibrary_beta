@@ -3,6 +3,7 @@
 export(gta_colour_palette)
 export(gta_cpc_code_expand)
 export(gta_cpc_to_hs)
+export(test_function)
 export(gta_cumulative_count)
 export(gta_data_slicer)
 export(gta_hs_vintage_converter)
