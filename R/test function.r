@@ -14,7 +14,7 @@ test_function <- function(tbl) {
 
 test_function_2 <- function(tbl) {
     tbl <- tibble::tibble(a = c(1:10), b = c(10:19))
-
+    library(data.table)
     # append to filter_statement (for lack of a better solution with dtplyr...)
     data <- dtplyr::lazy_dt(tbl)
     out <- data |>
