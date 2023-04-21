@@ -55,13 +55,13 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
     if (is.null(data)) {
         # try to load data
         tryCatch(
-            data <- readRDS(data.path),
+            data <- dtplyr::lazy_dt(readRDS(data.path)),
             error = \(e) cli::cli_abort("Path to data file is invalid. Did you set your working directory ?")
         )
     }
-    # if (!data.table::is.data.table(data)) {
-    #     data <- data.table::as.data.table(data)
-    # }
+    else {
+        data <- dtplyr::lazy_dt(data)
+    }
 
     filter_statement <- vector("character")
     # Suppress summarize info
@@ -321,16 +321,15 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
     # filter the data frame for the first time
     if (!length(filter_statement) == 0) {
         filter_statement <- paste(filter_statement, collapse = " & ")
-        data <- dtplyr::lazy_dt(data) |>
-            dplyr::filter(eval(parse(text = filter_statement))) |>
-            data.table::as.data.table()
+        data <- data |>
+            dplyr::filter(eval(parse(text = filter_statement)))
     }
 
     # hs codes
     if (!is.null(hs.codes)) {
         gta_logical_check(keep.hs, is.logical, "keep.hs must be TRUE/FALSE")
         hs_codes_filter <- gta_hs_vintage_converter(codes = hs.codes, years = 2012, message = FALSE)
-        hs_codes_filter <- stringr::str_pad(hs_codes_filter, width = 6, side = "left", pad = "0")
+        hs_codes_filter <- stringr::str_pad(hs_codes_filter, width = 6, side = "left", pad = "0") # only if vintage_converter returns numeric
 
         if (!keep.hs) {
             filter_statement_hs <- "!affected.product %in% hs_codes_filter"
@@ -339,8 +338,8 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         }
 
         # keep as tibble and not as data.table --> Faster performance
-        data <- tibble::as_tibble(data) |>
-            # alternatively, use stringr::str_split() --> equivalent function
+        data <- data |>
+            as.data.frame() |> # as unnest() cannot be used with dtplyr's lazy_dt()
             dplyr::mutate(affected.product = stringr::str_split(string = affected.product, pattern = ", ")) |>
             tidyr::unnest(cols = affected.product) |>
             dplyr::filter(eval(parse(text = filter_statement_hs))) |>
@@ -359,8 +358,8 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
             filter_statement_cpc <- "affected.sector %in% cpc_sectors_filter"
         }
 
-        data <- tibble::as_tibble(data) |>
-            # alternatively, use stringr::str_split() --> equivalent function
+        data <- data |>
+            as.data.frame() |> 
             dplyr::mutate(affected.sector = stringr::str_split(string = affected.sector, pattern = ", ")) |>
             tidyr::unnest(cols = affected.sector) |>
             dplyr::filter(eval(parse(text = filter_statement_cpc))) |>
@@ -368,5 +367,6 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
             dplyr::summarize(affected.sector = paste(affected.sector, collapse = ", "))
     }
 
+    # transform lazy_dt() into tibble if not done yet
     return(tibble::as_tibble(data))
 }
