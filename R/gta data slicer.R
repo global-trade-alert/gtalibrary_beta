@@ -2,9 +2,9 @@
 
 #' This function allows you to extract a tailored subset of the GTA database.
 #'
-#' Make use of the many variables captured in the taxonomy of the Global Trade Alert and tailor the data to your needs. This function returns a list of 2 data frames. The first, master, contains the subset of GTA data you requested. The second, parameter.choices, lists all implicit or exlicited choices that led to the subset.
+#' Make use of the many variables captured in the taxonomy of the Global Trade Alert
 #'
-#' @param data.path Specifies where the GTA data file is located (Default: 'data/master_plus.Rdata'). Set to 'online' to download the latest copy.
+#' @param data.path Specifies where the GTA data file is located (Default: 'data/master_plus.Rdata').
 #' @param gta.evaluation Specify what GTA evaluations to include. Default is 'any'. Permissible values are 'red', 'amber', 'green' or combinations thereof.
 #' @param affected.flows Specify the direction of the trade flow that is affected. The point of view is from the implementing country. Default is 'any'. Permissible values are 'inward', 'outward', 'outward subsidy' or combinations thereof.
 #' @param implementing.country Specify the implementing countries for your analysis. Default is 'any'. Permissible values are country names or UN codes.
@@ -51,25 +51,22 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
                             cpc.sectors = NULL, keep.cpc = NULL, hs.codes = NULL, keep.hs = NULL,
                             intervention.ids = NULL, keep.interventions = NULL, lag.adjustment = NULL) {
     # if master dataset is not provided, load it as data table
-    # if it is already provided, ensure that it is formatted as a data.table
     if (is.null(data)) {
         # try to load data
         tryCatch(
             data <- dtplyr::lazy_dt(readRDS(data.path)),
             error = \(e) cli::cli_abort("Path to data file is invalid. Did you set your working directory ?")
         )
-    }
-    else {
+    } else {
         data <- dtplyr::lazy_dt(data)
     }
 
+    # initialize empty vector which stores the filter statements inplied by the argument specifications by user
     filter_statement <- vector("character")
     # Suppress summarize info
     options(dplyr.summarise.inform = FALSE)
 
-    ##################################################################
     # Check argument validity and generate filter statement & further operations where necessary
-    ##################################################################
     gta_logical_check(keep.implementer, is.logical, "Keep.implementer must be TRUE/FALSE")
     gta_logical_check(keep.revocation.na, is.logical, "Keep.revocation.na must be a TRUE/FALSE")
     gta_logical_check(keep.others, is.logical, "Keep.others must be a TRUE/FALSE")
@@ -93,18 +90,19 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         filter_statement <- append(filter_statement, "affected.flow %in% affected_flow_filter")
     }
 
-    # check implementing country
+    # implementing country
     if (!is.null(implementing.country)) {
         gta_logical_check(keep.implementer, is.logical, "keep.implementer must be TRUE/FALSE")
         implementing_country_filter <- gta_un_code_vector(countries = implementing.country)
-        if (!keep.implementer) {
-            filter_statement <- append(filter_statement, "!i.un %in% implementing_country_filter")
-        } else {
+
+        if (keep.implementer) {
             filter_statement <- append(filter_statement, "i.un %in% implementing_country_filter")
+        } else {
+            filter_statement <- append(filter_statement, "!i.un %in% implementing_country_filter")
         }
     }
 
-    # check affected.country
+    # affected.country
     if (!is.null(affected.country)) {
         gta_logical_check(keep.affected, is.logical, "keep.affected must be TRUE/FALSE")
         gta_logical_check(keep.others, is.logical, "keep.others must be TRUE/FALSE")
@@ -126,7 +124,7 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         if (!all(nr.affected == c(0, 999)) | tolower(nr.affected.incl) != "all" | tolower(incl.affected.strictness) != "oneplus") {
             # generates tibble that contains
             # - number of affected countries per intervention.id where at least one member in the argument "affected.country" is included
-            # - number of values "affected.country" which are affected per intervention.id
+            # - number of countries in affected.country which are affected per intervention.id
             affected_countries_info <- data |>
                 dplyr::filter(intervention.id %in% affected_interventions) |>
                 dplyr::select(a.un, intervention.id) |>
@@ -136,7 +134,7 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
                 dplyr::summarize(
                     n_affected_total = length(a.un), # number of different affected countries per intervention.id
                     n_affected_selected = length(a.un[affected_country]), # number of diff. affected countries per intervention.id which are in "affected.country"
-                    n_affected_unselected = length(a.un[!affected_country])
+                    n_affected_unselected = 1 - n_affected_selected
                 )
 
             # test which statement was modified and select the interventions accordingly
@@ -185,10 +183,10 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         gta_parameter_check(intervention.types, permissible_values)
         intervention_types_filter <- intervention.types
 
-        if (!keep.type) {
-            filter_statement <- append(filter_statement, "!intervention.type %in% intervention_types_filter")
-        } else {
+        if (keep.type) {
             filter_statement <- append(filter_statement, "intervention.type %in% intervention_types_filter")
+        } else {
+            filter_statement <- append(filter_statement, "!intervention.type %in% intervention_types_filter")
         }
     }
 
@@ -199,10 +197,10 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         permissible_values <- toupper(gtalibrary::int.mast.types$mast.chapter.id)
         gta_parameter_check(mast_chapters_filter, permissible_values)
 
-        if (!keep.mast) {
-            filter_statement <- append(filter_statement, "!mast.id %in% mast_chapters_filter")
-        } else {
+        if (keep.mast) {
             filter_statement <- append(filter_statement, "mast.id %in% mast_chapters_filter")
+        } else {
+            filter_statement <- append(filter_statement, "!mast.id %in% mast_chapters_filter")
         }
     }
 
@@ -213,10 +211,10 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         eligible_firms_filter <- tolower(eligible.firms)
         gta_parameter_check(eligible_firms_filter, admissible.values, arg_name = "eligible.firms")
 
-        if (!keep.firms) {
+        if (keep.firms) {
             filter_statement <- append(filter_statement, "eligible.firms %in% eligible_firms_filter")
         } else {
-            filter_statement <- append(filter_statement, "eligible.firms %in% eligible_firms_filter")
+            filter_statement <- append(filter_statement, "!eligible.firms %in% eligible_firms_filter")
         }
     }
 
@@ -227,10 +225,10 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         implementation_level_filter <- tolower(implementation.level)
         gta_parameter_check(implementation_level_filter, admissible.values, arg_name = "implementation.level")
 
-        if (!keep.level) {
-            filter_statement <- append(filter_statement, "!implementation.level %in% implementation_level_filter")
-        } else {
+        if (keep.level) {
             filter_statement <- append(filter_statement, "implementation.level %in% implementation_level_filter")
+        } else {
+            filter_statement <- append(filter_statement, "!implementation.level %in% implementation_level_filter")
         }
     }
 
@@ -240,10 +238,11 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         permissible_values <- unique(master$intervention.id)
         gta_parameter_check(intervention.ids, permissible_values)
         intervention_ids_filter <- intervention.ids
-        if (!keep.interventions) {
-            filter_statement <- append(filter_statement, "!intervention.id %in% intervention_ids_filter")
-        } else {
+
+        if (keep.interventions) {
             filter_statement <- append(filter_statement, "intervention.id %in% intervention_ids_filter")
+        } else {
+            filter_statement <- append(filter_statement, "!intervention.id %in% intervention_ids_filter")
         }
     }
 
@@ -254,23 +253,26 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         gta_logical_check(implementation.period[1], lubridate::is.Date, error_msg = "implementation.period[1] must be a Date")
         gta_logical_check(implementation.period[1], \(x) (lubridate::is.Date(x) | is.na(x)), error_msg = "implementation.period[2] must be either a Date or NA")
 
-        # convert NA (--> no end date) to a data for easier filtering below
+        # convert NA (--> no end date) to a date for easier filtering below
         if (is.na(implementation.period[2])) implementation.period[2] <- as.Date("9999-12-31")
 
-        if (!keep.implementation.na) {
-            filter_statement <- append(filter_statement, "dplyr::between(date.implemented, implementation.period[1], implementation.period[2])")
+        if (keep.implementation.na) {
+            filter_statement <- append(filter_statement, "dplyr::between(date.implemented, implementation.period[1], implementation.period[2]) | is.na(implementation.period)")
         } else {
             filter_statement <- append(filter_statement, "dplyr::between(date.implemented, implementation.period[1], implementation.period[2])")
         }
     }
+
     # announcement.period
     if (!is.null(announcement.period)) {
         gta_logical_check(announcement.period, \(x) length(x) == 2, error_msg = "announcement.period must be a vector of two elements")
         gta_logical_check(announcement.period[1], lubridate::is.Date, error_msg = "announcement.period[1] must be a Date")
-        gta_logical_check(announcement.period[1], \(x) (lubridate::is.Date(x) | is.na(x)), error_msg = "announcement.period[2] must be either a Date or NA")
+        gta_logical_check(announcement.period[2], \(x) (lubridate::is.Date(x) | is.na(x)), error_msg = "announcement.period[2] must be either a Date or NA")
 
+        # convert NA (--> no end date) to a date for easier filtering below
         if (is.na(announcement.period[2])) announcement.period[2] <- as.Date("9999-12-31")
 
+        # automatically removes all values where date.announced is NA
         filter_statement <- append(filter_statement, "dplyr::between(date.announced, announcement.period[1], announcement.period[2])")
     }
 
@@ -278,10 +280,12 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
     if (!is.null(submission.period)) {
         gta_logical_check(submission.period, \(x) length(x) == 2, error_msg = "submission.period must be a vector of two elements")
         gta_logical_check(submission.period[1], lubridate::is.Date, error_msg = "submission.period[1] must be a Date")
-        gta_logical_check(submission.period[1], \(x) (lubridate::is.Date(x) | is.na(x)), error_msg = "submission.period[2] must be either a Date or NA")
+        gta_logical_check(submission.period[2], \(x) (lubridate::is.Date(x) | is.na(x)), error_msg = "submission.period[2] must be either a Date or NA")
 
+        # convert NA (--> no end date) to a date for easier filtering below
         if (is.na(submission.period[2])) submission.period[2] <- as.Date("9999-12-31")
 
+        # automatically removes all values where submission.period is NA
         filter_statement <- append(filter_statement, "dplyr::between(submission.period, submission.period[1], submission.period[2])")
     }
 
@@ -289,10 +293,12 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
     if (!is.null(revocation.period)) {
         gta_logical_check(keep.revocation.na, is.logical, error_msg = "keep.revocation.na must be TRUE/FALSE")
         gta_logical_check(revocation.period[1], lubridate::is.Date, error_msg = "revocation.period[1] must be a Date")
-        gta_logical_check(revocation.period[1], \(x) (lubridate::is.Date(x) | is.na(x)), error_msg = "revocation.period[2] must be either a Date or NA")
+        gta_logical_check(revocation.period[2], \(x) (lubridate::is.Date(x) | is.na(x)), error_msg = "revocation.period[2] must be either a Date or NA")
         gta_logical_check(revocation.period, \(x) length(x) == 2, error_msg = "revocation.period must be a vector of two elements")
 
         if (is.na(revocation.period[2])) revocation.period[2] <- as.Date("9999-12-31")
+
+        # automatically removes all values where date.removed is NA
         filter_statement <- append(filter_statement, "dplyr::between(date.removed, announcement.period[1], announcement.period[2])")
     }
 
@@ -303,9 +309,10 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         gta_logical_check(in.force.on.date, lubridate::is.Date, error_msg = "in.force.on.date must be a date")
 
         if (keep.in.force.on.date == "yes") {
-            filter_statement <- append(filter_statement, "date.implemented <= in.force.on.date & (is.na(date.removed) | date.removed >= in.force.on.date)")
+            filter_statement <- append(filter_statement, "dplyr::between(in.force.on.date, date.implemented, date.removed) | date.implemented <= in.force.on.date & is.na(date.removed)")
         } else {
-            filter_statement <- append(filter_statement, "date.removed < in.force.on.date & date.implemented < in.force.on.date | is.na(date.implemented)")
+            # double check statement here
+            filter_statement <- append(filter_statement, "date.implemented < date.removed < in.force.on.date | date.implemented > in.force.on.date")
         }
     }
 
@@ -331,10 +338,10 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         hs_codes_filter <- gta_hs_vintage_converter(codes = hs.codes, years = 2012, message = FALSE)
         hs_codes_filter <- stringr::str_pad(hs_codes_filter, width = 6, side = "left", pad = "0") # only if vintage_converter returns numeric
 
-        if (!keep.hs) {
-            filter_statement_hs <- "!affected.product %in% hs_codes_filter"
-        } else {
+        if (keep.hs) {
             filter_statement_hs <- "affected.product %in% hs_codes_filter"
+        } else {
+            filter_statement_hs <- "!affected.product %in% hs_codes_filter"
         }
 
         # keep as tibble and not as data.table --> Faster performance
@@ -343,7 +350,7 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
             dplyr::mutate(affected.product = stringr::str_split(string = affected.product, pattern = ", ")) |>
             tidyr::unnest(cols = affected.product) |>
             dplyr::filter(eval(parse(text = filter_statement_hs))) |>
-            dplyr::group_by(dplyr::across(-affected.product)) |>
+            dplyr::group_by(dplyr::across(-affected.product)) |> # put all HS codes per intervention in one row again
             dplyr::summarize(affected.product = paste(affected.product, collapse = ", "))
     }
 
@@ -352,14 +359,14 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
         gta_logical_check(keep.cpc, is.logical, "keep.cpc must be TRUE/FALSE")
         cpc_sectors_filter <- gta_cpc_code_check(codes = cpc.sectors)
 
-        if (!keep.cpc) {
-            filter_statement_cpc <- "!affected.sector %in% cpc_sectors_filter"
-        } else {
+        if (keep.cpc) {
             filter_statement_cpc <- "affected.sector %in% cpc_sectors_filter"
+        } else {
+            filter_statement_cpc <- "!affected.sector %in% cpc_sectors_filter"
         }
 
         data <- data |>
-            as.data.frame() |> 
+            as.data.frame() |>
             dplyr::mutate(affected.sector = stringr::str_split(string = affected.sector, pattern = ", ")) |>
             tidyr::unnest(cols = affected.sector) |>
             dplyr::filter(eval(parse(text = filter_statement_cpc))) |>
@@ -367,6 +374,6 @@ gta_data_slicer <- function(data = NULL, data.path = "data/master.Rds",
             dplyr::summarize(affected.sector = paste(affected.sector, collapse = ", "))
     }
 
-    # transform lazy_dt() into tibble if not done yet
+    # transform lazy_dt() into tibble if not done yet & return value
     return(tibble::as_tibble(data))
 }
