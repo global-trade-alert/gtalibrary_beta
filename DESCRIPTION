@@ -23,4 +23,5 @@ Imports:
     devtools, 
     lubridate
 LinkingTo: Rcpp
+Depends: data.table
 
