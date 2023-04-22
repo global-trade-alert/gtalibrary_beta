@@ -2,12 +2,19 @@
 
 #' Convert HS codes of unkown vintage into HS6 2012.
 #'
-#' `gta_hs_vintage_converter()` takes a vector of HS codes of any vintage
-#' as an input and converts them to 6-digit HS2012 codes.
-#'
+#' \code{gta_hs_vintage_converter()} takes a vector of HS codes of any vintage
+#' as an input and converts them to 6-digit HS2012 codes. The function checks which vintage year allows to convert the most
+#' supplied codes.
 #' Available vintages to convert from are: 1992, 1996, 2002, 2007, 2017, 2022.
 #' Input codes can be of any length (ie. HS2, HS4, ...). Input codes longer than 6 digits
 #' are truncated to 6 digits.
+#' @details
+#' In case multiple years can convert the same number of codes, the newest year is selected for conversion.
+#' Example: N. supplied codes: 100, vintage years checked: 2002, 2007, 2017
+#' convertable codes vintage 2002: 80
+#' convertable codes vintage 2007: 76
+#' convertable codes vintage 2017: 80
+#' --> vintage year 2017 is selected for conversion
 #' @usage
 #' gta_hs_vintage_converter(
 #'     codes,
@@ -16,15 +23,16 @@
 #'     message = TRUE
 #' )
 #' @param codes Supply the HS codes you want to check. Values with 2 or more digits are allowed.
-#' Values with more than 6 digits will be limited to 6.
-#' codes can be of type numeric or character
+#' Values with more than 6 digits will be limited to 6. Codes can be of type numeric or character.
 #' @param years State the origin vintage years which should be tested as candidates to convert from.
-#' Options inclue 2002, 2007, 2012, 2017, 2022. Default is (2002, 2007, 2012, 2017).
-#' @param as_list if TRUE, returns the result as a list of the same length as `codes`.
+#' Options inclue 1992, 1996, 2002, 2007, 2012, 2017, 2022. Default are all of them.
+#' @param as_list if TRUE, returns the result as a list of the same length as \code{codes}.
 #' If FALSE, a vector of unique converted HS codes is returned
 #' @param message if TRUE, conversion results are printed to the console.
-#' This includes: The unique vintage year used for conversion (only if `orign` != "any"),
-#' possible codes that were truncated to 6 digits and the codes that could not be converted.
+#' This includes:
+#' - The unique vintage year used for conversion.
+#' - The relative share of unique supplied codes that could not be converted.
+#' - codes that were truncated to 6 digits.
 #' @examples
 #' # If you wish to convert every HS code into HS_2012 and append the result to an
 #' # existing data frame, the as_list comes in handy. Use \code{dplyr::mutate()} to
@@ -35,17 +43,17 @@
 #' )
 #'
 #' df |>
-#'     dplyr::mutate(HS_2012 = gta_hs_vintage_converter(codes = HS_2007, as_list = TRUE, years = c(2002, 2007, 2012, 2017))) |>
+#'     dplyr::mutate(HS_2012 = gta_hs_vintage_converter(codes = HS_unknown_vintage, as_list = TRUE)) |>
 #'     tidyr::unnest(cols = HS_2012, keep_empty = TRUE) # keep_empty keeps the columns where the HS code could not be converted
 #'
 #' # If you know that the HS codes which you want to convert are from a specific year (eg. 2007), you
-#' # can simply adjust the argument `years` and only include 2007. This ensures that all codes are converted
-#' # form the HS2007 vintag
+#' # can simply adjust the argument \code{years} and only include 2007. This ensures that all codes are converted
+#' # form the HS2007 vintage.
 #' @references
 #' The conversion Matrix underlying this function is stored in \code{`gtalibrary::hs_vintages`}
 #' The data was obtained from: https://unstats.un.org/unsd/classifications/Econ
 #' @export
-gta_hs_vintage_converter <- function(codes, years = c(1992, 1996, 2002, 2007, 2012, 2017), as_list = FALSE, message = TRUE) {
+gta_hs_vintage_converter <- function(codes, years = c(1992, 1996, 2002, 2007, 2012, 2017, 2022), as_list = FALSE, message = TRUE) {
     # check validity of function arguments
     gta_logical_check(as_list, is.logical)
     gta_logical_check(message, is.logical)
@@ -96,7 +104,7 @@ gta_hs_vintage_converter <- function(codes, years = c(1992, 1996, 2002, 2007, 20
 
             # print if some codes were not converted
         } else {
-            cli::cli_alert_warning("Could not match {length(unique(not_converted)) / length(codes)} codes: {unique(not_converted)}", wrap = TRUE)
+            cli::cli_alert_warning("Could not match {length(unique(not_converted)) / length(unique(codes))} codes: {unique(not_converted)}", wrap = TRUE)
         }
         # print year used for conversion if at least one code was converted
         if (!(length(not_converted) == length(codes))) {
