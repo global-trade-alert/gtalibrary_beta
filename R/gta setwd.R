@@ -2,6 +2,13 @@
 
 #' Sets your working directory to that used by the GTA data team.
 #' @return A common working directory
+#' @usage gta_setwd(gdrive = NA)
+#' @examples
+#' # if your google drive .. on your computer starts with H:
+#' gta_setwd(gdrive = "H")
+#' # if your google drive .. on your computer starts with G:
+#' gta_setwd(gdrive = "G")
+#' # etc...
 #' @export
 gta_setwd <- function(gdrive = NA) {
     if (is.na(gdrive)) {

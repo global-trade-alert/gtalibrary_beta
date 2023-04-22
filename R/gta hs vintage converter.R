@@ -3,11 +3,8 @@
 #' Convert HS codes of unkown vintage into HS6 2012.
 #'
 #' \code{gta_hs_vintage_converter()} takes a vector of HS codes of any vintage
-#' as an input and converts them to 6-digit HS2012 codes. The function checks which vintage year allows to convert the most
-#' supplied codes.
-#' Available vintages to convert from are: 1992, 1996, 2002, 2007, 2017, 2022.
-#' Input codes can be of any length (ie. HS2, HS4, ...). Input codes longer than 6 digits
-#' are truncated to 6 digits.
+#' as an input and converts them to 6-digit HS2012 codes. Available vintages to convert from are:
+#' 1992, 1996, 2002, 2007, 2017, 2022. Input codes longer than 6 digits are truncated to 6 digits.
 #' @details
 #' In case multiple years can convert the same number of codes, the newest year is selected for conversion.
 #' Example: N. supplied codes: 100, vintage years checked: 2002, 2007, 2017

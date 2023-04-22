@@ -8,7 +8,9 @@
 #' @usage gta_un_code_vector(countries = "all")
 #' @param countries Vector with either country names, country group names or UN codes. Do not mix UN codes with country or group names. Please use function also for UN codes to ensure the ones you supply are consistent with the ones used by the GTA.
 #' @return A vector of UN country codes that is consistent with those used by the GTA.
-
+#' @examples 
+#' # retreive the UN codes for Switzerland and the United States of America
+#' gta_un_code_vector(countries = c("Switzerland", "United States of America"))
 #' @export
 gta_un_code_vector <- function(countries = "all") {
     # check wheter input is numeric or character (only permissible types)

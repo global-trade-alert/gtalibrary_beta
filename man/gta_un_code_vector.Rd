@@ -19,3 +19,7 @@ Create a vector of UN country codes
 Use this function to get the UN codes of countries or to check whether UN codes are consistent with the UN codes
 used by the GTA. The funciton returns a vector of codes based on country or group names. Per default, a vector of all UN codes is returned
 }
+\examples{
+# retreive the UN codes for Switzerland and the United States of America
+gta_un_code_vector(countries = c("Switzerland", "United States of America"))
+}

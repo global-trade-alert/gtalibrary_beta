@@ -12,3 +12,10 @@ A common working directory
 \description{
 Sets your working directory to that used by the GTA data team.
 }
+\examples{
+# if your google drive .. on your computer starts with H:
+gta_setwd(gdrive = "H")
+# if your google drive .. on your computer starts with G:
+gta_setwd(gdrive = "G")
+# etc...
+}

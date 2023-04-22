@@ -5,9 +5,19 @@
 #' Access any colour by calling e.g. gta_colour$green[1]. Every colour comes in 4 predefined shades (index 1 to 4 or dark to light).
 #'
 #' 'qualitative' contains 8 neutral colours. Shade functions can be filled with any numeric value indicating the number of shades needed.
-#'
 #' Applicable values are: green, liberalising, green.light, red, harmful, red.light, amber, blue, brown, turquoise, desert, grey, blue.complement, qualitative, green.shades(), red.shades(), amber.shades(), blue.shades(), turquoise.shades(), desert.shades(), brown.shades(), grey.shades().
+#' Additionally, you can also retreive the background color (background_color), text color (text_color) and line color (line_color) used in the base \code{gta_theme}.
+#' @usage
+#' gta_colour_palette(NULL)
+#' @examples
+#' gta_color <- gta_colour_palette()
 #'
+#' # generate plot
+#' mtcars |>
+#'     ggplot(aes(x = cyl, y = png, color = mpg)) +
+#'     geom_point() +
+#'     scale_color_manual(values = gta_color$qualitative) +
+#'     theme()
 #' @export
 gta_colour_palette <- function() {
     ### THE GTA standard colour palette
@@ -47,7 +57,7 @@ gta_colour_palette <- function() {
     # colors used in gta_theme()
     text_color <- "#555555"
     line_color <- "#CCCCCC"
-    background_color <- "#EEEEEE"
+    background_color <- "#F7F7F7"
 
     # store colors in list
     gta_colour <- list(

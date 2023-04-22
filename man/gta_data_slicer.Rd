@@ -43,7 +43,7 @@ gta_data_slicer(
 )
 }
 \arguments{
-\item{data.path}{Specifies where the GTA data file is located (Default: 'data/master_plus.Rdata'). Set to 'online' to download the latest copy.}
+\item{data.path}{Specifies where the GTA data file is located (Default: 'data/master_plus.Rdata').}
 
 \item{gta.evaluation}{Specify what GTA evaluations to include. Default is 'any'. Permissible values are 'red', 'amber', 'green' or combinations thereof.}
 
@@ -112,5 +112,5 @@ gta_data_slicer(
 \item{lag.adjustment}{Create a snapshot of the GTA data at the same point in each calendar year since 2009. Specify a cut-off date ('MM-DD').}
 }
 \description{
-Make use of the many variables captured in the taxonomy of the Global Trade Alert and tailor the data to your needs. This function returns a list of 2 data frames. The first, master, contains the subset of GTA data you requested. The second, parameter.choices, lists all implicit or exlicited choices that led to the subset.
+Make use of the many variables captured in the taxonomy of the Global Trade Alert
 }
