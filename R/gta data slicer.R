@@ -41,42 +41,41 @@
 #' @export
 gta_data_slicer <- function(data = NULL,
                             data.path = "data/master.Rds",
-                            gta.evaluation = NULL, 
-                            affected.flows = NULL, 
-                            implementing.country = NULL, 
+                            gta.evaluation = NULL,
+                            affected.flows = NULL,
+                            implementing.country = NULL,
                             keep.implementer = TRUE,
                             affected.country = NULL,
                             keep.affected = NULL,
-                            incl.affected.strictness = "ONEPLUS", 
+                            incl.affected.strictness = "ONEPLUS",
                             keep.others = TRUE,
                             nr.affected = c(0, 999),
                             nr.affected.incl = "ALL",
-                            announcement.period = NULL, 
+                            announcement.period = NULL,
                             keep.announcement.na = NULL, # NEW PARAMETER
-                            implementation.period = NULL, 
-                            keep.implementation.na = NULL, 
+                            implementation.period = NULL,
+                            keep.implementation.na = NULL,
                             revocation.period = NULL,
                             keep.revocation.na = TRUE,
-                            submission.period = NULL, 
+                            submission.period = NULL,
                             keep.submission.na = NULL, # NEW PARAMETER
-                            in.force.on.date = Sys.Date(), 
+                            in.force.on.date = Sys.Date(),
                             keep.in.force.on.date = "any",
                             intervention.types = NULL,
                             keep.type = NULL,
                             mast.chapters = NULL,
                             keep.mast = NULL,
                             implementation.level = NULL,
-                            keep.level = NULL, 
+                            keep.level = NULL,
                             eligible.firms = NULL,
-                            keep.firms = NULL, 
-                            cpc.sectors = NULL, 
-                            keep.cpc = NULL, 
+                            keep.firms = NULL,
+                            cpc.sectors = NULL,
+                            keep.cpc = NULL,
                             hs.codes = NULL,
                             keep.hs = NULL,
-                            intervention.ids = NULL, 
-                            keep.interventions = NULL, 
-                            lag.adjustment = NULL 
-                            ) {
+                            intervention.ids = NULL,
+                            keep.interventions = NULL,
+                            lag.adjustment = NULL) {
     # if master dataset is not provided, load it as data table
     if (is.null(data)) {
         # try to load data
@@ -238,7 +237,7 @@ gta_data_slicer <- function(data = NULL,
         gta_logical_check(keep.firms, is.logical, "keep.firms must be TRUE/FALSE")
         permissible_values <- tolower(gtalibrary::elig.firms$eligible.firms)
         eligible_firms_filter <- tolower(eligible.firms)
-        gta_parameter_check(eligible_firms_filter, admissible.values, arg_name = "eligible.firms")
+        gta_parameter_check(eligible_firms_filter, permissible_values, arg_name = "eligible.firms")
 
         if (keep.firms) {
             # tolower() --> SMEs is upper cap, rest is lower cap in data set
@@ -315,7 +314,7 @@ gta_data_slicer <- function(data = NULL,
 
     # submission.period
     if (!is.null(submission.period)) {
-        gta_logical_check(keep.submission.na, error_msg = "keep.submission.na must be TRUE/FALSE")
+        gta_logical_check(keep.submission.na, is.logical, error_msg = "keep.submission.na must be TRUE/FALSE")
         gta_logical_check(submission.period, \(x) length(x) == 2, error_msg = "submission.period must be a vector of two elements")
         gta_logical_check(submission.period[1], lubridate::is.Date, error_msg = "submission.period[1] must be a Date")
         gta_logical_check(submission.period[2], \(x) (lubridate::is.Date(x) | is.na(x)), error_msg = "submission.period[2] must be either a Date or NA")
@@ -324,10 +323,10 @@ gta_data_slicer <- function(data = NULL,
         if (is.na(submission.period[2])) submission.period[2] <- as.Date("9999-12-31")
 
         if (keep.submission.na) {
-            filter_statement <- append(filter_statement, "dplyr::between(submission.period, submission.period[1], submission.period[2]) | is.na(submission.period)")
+            filter_statement <- append(filter_statement, "dplyr::between(date.published, submission.period[1], submission.period[2]) | is.na(date.published)")
         } else {
             # automatically removes all values where submission.period is NA
-            filter_statement <- append(filter_statement, "dplyr::between(submission.period, submission.period[1], submission.period[2])")
+            filter_statement <- append(filter_statement, "dplyr::between(date.published, submission.period[1], submission.period[2])")
         }
     }
 
@@ -341,7 +340,7 @@ gta_data_slicer <- function(data = NULL,
         if (is.na(revocation.period[2])) revocation.period[2] <- as.Date("9999-12-31")
 
         if (keep.revocation.na) {
-            filter_statement <- append(filter_statement, "dplyr::between(date.removed, revocation.period[1], revocation.period[2]) | is.na(revocation.period)")
+            filter_statement <- append(filter_statement, "dplyr::between(date.removed, revocation.period[1], revocation.period[2]) | is.na(date.removed))")
         } else {
             # automatically removes all values where date.removed is NA
             filter_statement <- append(filter_statement, "dplyr::between(date.removed, revocation.period[1], revocation.period[2])")
@@ -369,7 +368,7 @@ gta_data_slicer <- function(data = NULL,
         cutoff_date <- lubridate::ymd(paste(lubridate::year(data$date.implemented), lag.adjustment, sep = "-"))
         filter_statement <- append(filter_statement, "date.implemented <= cutoff_date")
     }
-    
+
     # filter the data frame for the first time
     if (!length(filter_statement) == 0) {
         filter_statement <- paste(filter_statement, collapse = " & ")
@@ -377,11 +376,14 @@ gta_data_slicer <- function(data = NULL,
             dplyr::filter(eval(parse(text = filter_statement)))
     }
 
+    # CURRENT IMPLEMENTATION: ONLY RETURNS HS CODES WICH ARE FILTERED FOR IN AFFECTED PRODUCT COLUMN
+    # EG. IF ONE COLUMN (ONE INTERVENTION AFFECTS 02xxxx, 04xxxx) AND YOU PUT HS.CODES = "02", IT WILL
+    # ONLY SHOW 02xxxx IN THAT INTERVENTION ROW IN THE RETURNED DATAFRAME --> SAME FOR PRODUCTS
     # hs codes
     if (!is.null(hs.codes)) {
         gta_logical_check(keep.hs, is.logical, "keep.hs must be TRUE/FALSE")
 
-        # convert codes to 6 digit hs code --> WARNING: Current implementation does not throw an error if 
+        # convert codes to 6 digit hs code --> WARNING: Current implementation does not throw an error if
         # some of the HS code inputs are not valid. They will be simply ignored by design of the gta_hs_vintage_converter
         hs_codes_filter <- gta_hs_vintage_converter(codes = hs.codes, years = 2012, message = FALSE)
 
