@@ -8,7 +8,7 @@
 #' @usage gta_un_code_vector(countries = "all")
 #' @param countries Vector with either country names, country group names or UN codes. Do not mix UN codes with country or group names. Please use function also for UN codes to ensure the ones you supply are consistent with the ones used by the GTA.
 #' @return A vector of UN country codes that is consistent with those used by the GTA.
-#' @examples 
+#' @examples
 #' # retreive the UN codes for Switzerland and the United States of America
 #' gta_un_code_vector(countries = c("Switzerland", "United States of America"))
 #' @export
@@ -27,26 +27,25 @@ gta_un_code_vector <- function(countries = "all") {
     if (all(countries == "all")) {
         countries <- country_correspondence$un_code |>
             unique()
-    }
-
-    # check if either (all numeric (un codes) or all string (country names))
-    if (is.numeric(countries)) {
-        permissible_values <- country_correspondence$un_code |>
-            unique()
-        gta_parameter_check(countries, permissible_values)
-        un_codes <- countries
     } else {
-        countries <- countries |>
-            tolower()
-        permissible_values <- country_correspondence$name |>
-            unique() |>
-            tolower()
+        # check if either (all numeric (un codes) or all string (country names))
+        if (is.numeric(countries)) {
+            permissible_values <- country_correspondence$un_code |>
+                unique()
+            gta_parameter_check(countries, permissible_values)
+        } else {
+            countries <- countries |>
+                tolower()
+            permissible_values <- country_correspondence$name |>
+                unique() |>
+                tolower()
 
-        gta_parameter_check(countries, permissible_values)
-        un_codes <- country_correspondence |>
-            dplyr::filter(tolower(name) %in% countries) |>
-            dplyr::distinct() |>
-            dplyr::pull(un_code)
+            gta_parameter_check(countries, permissible_values)
+            un_codes <- country_correspondence |>
+                dplyr::filter(tolower(name) %in% countries) |>
+                dplyr::distinct() |>
+                dplyr::pull(un_code)
+        }
     }
 
     # return output
