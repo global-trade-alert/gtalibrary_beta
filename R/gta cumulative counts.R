@@ -6,6 +6,10 @@
 #'
 #' @param data requires a data frame obtained by running the \code{gta_data_slicer()}
 #' @param count_by Specify whether to count by month, quarter or year.
+#' @details 
+#' the passed data must have columns that are named \code{intervention.id}, \code{date.implemented}, \code{date.removed}
+#' The function only selects these three columns of the data frame and drops all duplicates to ensure that each intervention
+#' is only counted once an not multiple times.
 #' @usage gta_cumulative_count(
 #'      data,
 #'      count_by = c("quarter", "year", "month")
@@ -15,6 +19,14 @@
 #' master <- gta_data_slicer(affected.jurisdiction = "Switzerland", keep.affected = TRUE, keep.others = FALSE)
 #' master |>
 #'     gta_cumulative_count(count_by = "year")
+#' 
+#' If you wish to calculate the intervention duration for multiple importers use group_modify or group_map. 
+#' # this will apply \code{gta_cumulative_count} to every grouped sub-dataframe and thus count the interventions per year 
+#' # of each importer contained in the master dataframe
+#' master |> 
+#'  group_by(i.un) |> 
+#'  group_modify(~ gta_cumulative_count(data = .x, count_by = "year"))
+
 #' @return Outputs in force interventions by different given periods.
 #' @export
 gta_cumulative_count <- function(data, count_by = "quarter") {
