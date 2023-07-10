@@ -37,11 +37,6 @@ gta_country_parameters <- function(input = NULL, from = NULL, to = NULL, message
         dplyr::select({{ from }}, {{ to }}) |>
         tibble::as_tibble()
 
-    conversion_matrix |>
-        dplyr::pull(un_code) |>
-        duplicated()
-
-    nrow(conversion_matrix)
     # join and pull converted values
     out <- dplyr::tibble(input) |>
         dplyr::left_join(conversion_matrix, by = dplyr::join_by(input == {{ from }}))
