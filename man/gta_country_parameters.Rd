@@ -2,9 +2,7 @@
 % Please edit documentation in R/gta_country_parameters.r
 \name{gta_country_parameters}
 \alias{gta_country_parameters}
-\title{convert between different country parameters
-Use this function to convert between different country attributes such as from name to un code or from un code to iso code.
-Conversion is possible between all parameters recorded in the \code{gtalibrary::country.correspondence} table.}
+\title{convert between different country parameters}
 \usage{
 gta_country_parameters(
      c("Switzerland", "Norway", "Slovenia"),
@@ -28,7 +26,6 @@ must be specified in the from argument}
 column to the matching parameter specified in \code{to}}
 }
 \description{
-convert between different country parameters
 Use this function to convert between different country attributes such as from name to un code or from un code to iso code.
 Conversion is possible between all parameters recorded in the \code{gtalibrary::country.correspondence} table.
 }
