@@ -1,5 +1,5 @@
 #' convert between different country parameters
-
+#'
 #' Use this function to convert between different country attributes such as from name to un code or from un code to iso code.
 #' Conversion is possible between all parameters recorded in the \code{gtalibrary::country.correspondence} table.
 
@@ -31,11 +31,17 @@ gta_country_parameters <- function(input = NULL, from = NULL, to = NULL, message
         cli::cli_abort("{.var from} cannot be the same as {.var to}")
     }
 
-    # conversion matrix
+    # conversion matrix (discard Macedonia --> Same un_code as North Macedonia)
     conversion_matrix <- gtalibrary::country.names |>
+        dplyr::filter(!name == "Macedonia") |>
         dplyr::select({{ from }}, {{ to }}) |>
         tibble::as_tibble()
 
+    conversion_matrix |>
+        dplyr::pull(un_code) |>
+        duplicated()
+
+    nrow(conversion_matrix)
     # join and pull converted values
     out <- dplyr::tibble(input) |>
         dplyr::left_join(conversion_matrix, by = dplyr::join_by(input == {{ from }}))
